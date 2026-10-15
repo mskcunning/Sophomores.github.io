@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Anything But a Case: Part 1 Research &amp; Planning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eaefeb; --surface:#ffffff; --surface2:#f4f7f4; --ink:#13241b; --muted:#56675d;
+  --line:#cfdad2; --line2:#b4c4b9; --pcb:#0f6b3f; --pcb-soft:#d9efe2; --copper:#b8621a; --copper-soft:#f8e6d6;
+  --intake:#1c63c9; --exhaust:#c8331f; --ok:#1f7a45; --ok-soft:#dcf1e4; --warn:#9a6200; --warn-soft:#fbefd3;
+  --bad:#bf2e2e; --bad-soft:#f9dede; --field:#ffffff; --plan-bg:#f7faf7; --plan-grid:#d5e2d9;
+  --focus:#1c63c9; color-scheme:light;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a1912; --surface:#11251b; --surface2:#0e2017; --ink:#e3f1e8; --muted:#97b2a2;
+    --line:#22412f; --line2:#2f563f; --pcb:#4fd18c; --pcb-soft:#163a27; --copper:#f09a52; --copper-soft:#3a2614;
+    --intake:#6eaaff; --exhaust:#ff7a66; --ok:#5fd68f; --ok-soft:#173825; --warn:#f2bb55; --warn-soft:#3a2d10;
+    --bad:#ff7b7b; --bad-soft:#3d1919; --field:#0b1c14; --plan-bg:#0c1f16; --plan-grid:#1d3a2a;
+    --focus:#6eaaff; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a1912; --surface:#11251b; --surface2:#0e2017; --ink:#e3f1e8; --muted:#97b2a2;
+  --line:#22412f; --line2:#2f563f; --pcb:#4fd18c; --pcb-soft:#163a27; --copper:#f09a52; --copper-soft:#3a2614;
+  --intake:#6eaaff; --exhaust:#ff7a66; --ok:#5fd68f; --ok-soft:#173825; --warn:#f2bb55; --warn-soft:#3a2d10;
+  --bad:#ff7b7b; --bad-soft:#3d1919; --field:#0b1c14; --plan-bg:#0c1f16; --plan-grid:#1d3a2a;
+  --focus:#6eaaff; color-scheme:dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 80px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+img{max-width:100%}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.15;margin:0;letter-spacing:-0.01em}
+a{color:var(--pcb)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+
+/* Top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1240px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.chip-logo{width:38px;height:38px;flex:none}
+.brand-t{font-family:var(--display);font-weight:800;font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-s{font-size:14px;color:var(--muted)}
+.top-actions{display:flex;align-items:center;gap:10px;flex:none}
+.save{font-size:14px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.save::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.save.ok::before{background:var(--ok)} .save.bad{color:var(--bad)} .save.bad::before{background:var(--bad)}
+
+/* Shell */
+.shell{max-width:1240px;margin:0 auto;padding:24px 20px 80px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:32px;align-items:start}
+nav.steps{position:sticky;top:calc(env(safe-area-inset-top,0px) + 84px)}
+.trace{position:relative;padding-left:4px}
+.trace::before{content:"";position:absolute;left:17px;top:18px;bottom:18px;width:3px;background:var(--line2);border-radius:2px}
+.step{position:relative;display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;padding:9px 8px 9px 4px;color:var(--ink);font:inherit;font-size:16px;cursor:pointer;border-radius:10px}
+.step:hover{background:var(--surface2)}
+.pad{position:relative;z-index:1;width:28px;height:28px;flex:none;border-radius:50%;background:var(--surface);border:3px solid var(--line2);display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--muted)}
+.pad svg{position:absolute;inset:-3px;width:28px;height:28px;transform:rotate(-90deg)}
+.pad circle{fill:none;stroke:var(--copper);stroke-width:3;stroke-linecap:round}
+.step.done .pad{background:var(--pcb);border-color:var(--pcb);color:var(--surface)}
+.step.active{background:var(--pcb-soft);font-weight:700}
+.step.active .pad{border-color:var(--pcb)}
+.step small{display:block;color:var(--muted);font-size:13px;font-weight:400}
+.overall{margin:18px 4px 0;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font-size:14px;color:var(--muted)}
+.overall b{font-family:var(--display);font-size:26px;color:var(--ink);display:block;line-height:1.1}
+.bar{height:8px;border-radius:5px;background:var(--surface2);border:1px solid var(--line);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--pcb);width:0;transition:width .3s}
+
+/* Sections */
+section.page{display:none}
+section.page.active{display:block}
+.page-h{margin-bottom:22px}
+.page-h h1{font-size:clamp(28px,4vw,40px);font-weight:800}
+.page-h p{color:var(--muted);max-width:68ch;margin:8px 0 0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px}
+.panel h2{font-size:22px;font-weight:700;margin-bottom:4px}
+.panel > p.lead{color:var(--muted);margin:0 0 16px;max-width:70ch}
+.panel.flat{background:var(--surface2)}
+.hint{background:var(--copper-soft);border-left:4px solid var(--copper);padding:12px 14px;border-radius:0 10px 10px 0;font-size:15.5px;margin:12px 0}
+.hint b{color:var(--copper)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.span2{grid-column:span 2}
+.full{grid-column:1/-1}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:15px;font-weight:700}
+label.f span.sub{font-weight:400;color:var(--muted);font-size:14px}
+input[type=text],input[type=number],input[type=date],input[type=url],select,textarea{
+  width:100%;font:inherit;font-size:16px;font-weight:400;color:var(--ink);background:var(--field);
+  border:1.5px solid var(--line2);border-radius:10px;padding:10px 12px}
+textarea{resize:vertical;min-height:84px;line-height:1.5}
+input::placeholder,textarea::placeholder{color:var(--muted);opacity:.75}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--focus) 25%,transparent)}
+.unit{position:relative}
+.unit input{padding-right:34px}
+.unit::after{content:"in";position:absolute;right:12px;bottom:11px;color:var(--muted);font-size:14px;pointer-events:none}
+
+.btn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-weight:700;font-size:15.5px;border-radius:10px;padding:10px 16px;border:1.5px solid var(--pcb);background:var(--pcb);color:var(--surface);cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--pcb)}
+.btn.sm{padding:7px 12px;font-size:14.5px}
+.btn.xs{padding:4px 10px;font-size:13.5px;border-radius:8px}
+.btn.danger{border-color:var(--bad);color:var(--bad);background:transparent}
+.icon-btn{font:inherit;background:var(--surface2);border:1px solid var(--line2);color:var(--ink);border-radius:8px;width:32px;height:32px;cursor:pointer;flex:none}
+.icon-btn:hover{border-color:var(--pcb)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative;cursor:pointer}
+.chip input{position:absolute;opacity:0;pointer-events:none}
+.chip span{display:inline-block;padding:6px 12px;border-radius:999px;border:1.5px solid var(--line2);background:var(--surface2);font-size:14.5px;font-weight:400;user-select:none}
+.chip input:checked + span{background:var(--pcb);border-color:var(--pcb);color:var(--surface)}
+.chip input:focus-visible + span{outline:3px solid var(--focus);outline-offset:2px}
+.fieldset-t{font-size:15px;font-weight:700;margin:0 0 8px}
+
+/* Pills */
+.pill{font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--surface2);color:var(--muted);border:1px solid var(--line);white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.pill.mid{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:26px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:28px;margin-bottom:18px;overflow:hidden}
+.hero h1{font-size:clamp(32px,5vw,54px);font-weight:800;line-height:1.02}
+.hero p{color:var(--muted);margin:14px 0 0;max-width:52ch}
+.hero-art{width:100%;height:auto}
+.deliv{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-top:6px}
+.deliv div{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface2);font-size:15px}
+.deliv b{display:block;font-family:var(--display);font-size:17px}
+
+/* Components */
+details.comp{border:1px solid var(--line);border-radius:14px;background:var(--surface);margin-bottom:12px}
+details.comp > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px 18px}
+details.comp > summary::-webkit-details-marker{display:none}
+details.comp > summary::before{content:"";width:9px;height:9px;border-right:2.5px solid var(--muted);border-bottom:2.5px solid var(--muted);transform:rotate(-45deg);transition:transform .15s;flex:none}
+details.comp[open] > summary::before{transform:rotate(45deg)}
+.sw{width:14px;height:14px;border-radius:4px;flex:none}
+.cname{font-family:var(--display);font-weight:700;font-size:18px;flex:1;min-width:0}
+.comp-b{padding:0 18px 18px;display:grid;gap:16px}
+.ref{font-size:15px;background:var(--pcb-soft);border-radius:10px;padding:10px 12px}
+.ref b{color:var(--pcb)}
+.conv{display:flex;align-items:end;gap:10px;flex-wrap:wrap}
+.conv label{width:150px}
+.conv .eq{padding-bottom:10px;font-weight:700;color:var(--muted)}
+
+/* Materials */
+.mats{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.mat{position:relative;display:block;cursor:pointer}
+.mat input{position:absolute;opacity:0}
+.mat .mc{display:block;height:100%;border:1.5px solid var(--line2);border-radius:14px;padding:14px;background:var(--surface2)}
+.mat .mc b{font-family:var(--display);font-size:18px;display:flex;gap:8px;align-items:center}
+.mat .mc span{display:block;font-size:14.5px;margin-top:6px}
+.mat .mc em{display:block;font-style:normal;font-size:14px;color:var(--muted);margin-top:6px}
+.mat input:checked + .mc{border-color:var(--pcb);background:var(--pcb-soft);box-shadow:inset 0 0 0 1.5px var(--pcb)}
+.mat input:focus-visible + .mc{outline:3px solid var(--focus);outline-offset:2px}
+.checklist{display:grid;gap:8px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:16px;cursor:pointer;padding:8px 10px;border-radius:10px;border:1px solid var(--line)}
+.check input{width:20px;height:20px;margin-top:2px;accent-color:var(--pcb);flex:none}
+.warnbox{border-radius:10px;padding:10px 12px;font-size:15px;background:var(--bad-soft);color:var(--bad);margin-top:10px}
+.warnbox:empty{display:none}
+
+/* Planner */
+.planner{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:16px;align-items:start}
+.plan-wrap{border:1px solid var(--line);border-radius:12px;overflow:auto;background:var(--plan-bg);min-height:240px}
+.plan-svg{display:block;width:100%;height:auto;max-height:560px;touch-action:none;user-select:none}
+.plan-svg [data-drag]{cursor:grab}
+.empty{padding:40px 20px;text-align:center;color:var(--muted)}
+.parts{border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--surface2);max-height:560px;overflow:auto}
+.parts-h{font-family:var(--display);font-weight:700;font-size:15px;margin:6px 4px 6px}
+.part{display:flex;align-items:center;gap:8px;padding:7px 6px;border-radius:8px;font-size:14.5px}
+.part.on{background:var(--surface)}
+.part .pn{flex:1;min-width:0}
+.part .pn small{color:var(--muted);display:block}
+.part.grab{cursor:grab;touch-action:none;border:1px dashed var(--line2);background:var(--surface);margin-bottom:4px}
+.part.grab:hover{border-color:var(--pcb)}
+.grip{color:var(--muted);font-size:16px;line-height:1}
+.drag-ghost{position:fixed;z-index:50;pointer-events:none;padding:6px 12px;border-radius:8px;color:#fff;font-weight:700;font-size:14px;box-shadow:0 6px 18px rgba(0,0,0,.3);transform:translate(-50%,-50%)}
+.plan-wrap.drop{outline:3px dashed var(--pcb);outline-offset:-3px}
+.fit{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.fit li{padding:9px 12px;border-radius:10px;font-size:15px;display:flex;gap:10px}
+.fit li::before{font-weight:700;flex:none}
+.fit .ok{background:var(--ok-soft);color:var(--ok)} .fit .ok::before{content:"✓"}
+.fit .warn{background:var(--warn-soft);color:var(--warn)} .fit .warn::before{content:"!"}
+.fit .bad{background:var(--bad-soft);color:var(--bad)} .fit .bad::before{content:"✕"}
+.fit .todo{background:var(--surface2);color:var(--muted)} .fit .todo::before{content:"…"}
+.sketch-prev{margin-top:12px;border:1px dashed var(--line2);border-radius:12px;padding:10px;text-align:center}
+.sketch-prev img{max-height:420px;border-radius:8px}
+.file-btn{position:relative;overflow:hidden}
+.file-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+/* Counters */
+.wc{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--muted);margin-top:10px}
+.wc .bar{flex:1;margin:0}
+.wc.good{color:var(--ok)} .wc.good .bar i{background:var(--ok)}
+.wc.over{color:var(--warn)} .wc.over .bar i{background:var(--warn)}
+
+/* Presentation */
+.seg{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--surface2)}
+.seg.live{border-color:var(--copper);box-shadow:inset 0 0 0 2px var(--copper)}
+.seg-head{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.seg-n{width:28px;height:28px;border-radius:50%;background:var(--pcb);color:var(--surface);display:grid;place-items:center;font-weight:700;font-size:14px;flex:none}
+.mins{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);flex:none}
+.mins input{width:76px}
+.total{font-family:var(--display);font-weight:800;font-size:22px}
+.total.good{color:var(--ok)} .total.off{color:var(--warn)}
+.timer{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.clock{font-family:var(--display);font-size:52px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.clock.over{color:var(--bad)} .clock.zone{color:var(--ok)}
+
+/* Review */
+.cl{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.cl li{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+.cl li .dot{width:22px;height:22px;border-radius:50%;border:2.5px solid var(--line2);flex:none;display:grid;place-items:center;font-size:13px;font-weight:700}
+.cl li.done .dot{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.cl li.part .dot{border-color:var(--warn)}
+.cl li span.d{flex:1}
+.cl li small{color:var(--muted)}
+.doc{background:#fff;color:#16211b;border:1px solid var(--line);border-radius:12px;padding:32px;font-size:15px;line-height:1.5}
+.doc h2{font-size:26px;margin:4px 0 2px}
+.doc h3{font-size:19px;margin:24px 0 8px;padding-bottom:4px;border-bottom:2px solid #0f6b3f;color:#0f6b3f}
+.doc h4{font-size:16px;margin:14px 0 4px}
+.doc p{margin:4px 0 8px}
+.doc .doc-k{color:#56675d;font-size:14px}
+.doc .missing{color:#a33;font-style:italic}
+.doc .tw{overflow-x:auto}
+.doc table{border-collapse:collapse;width:100%;font-size:13.5px}
+.doc th,.doc td{border:1px solid #cfdad2;padding:5px 7px;text-align:left;vertical-align:top}
+.doc th{background:#eef4f0}
+.doc .plan-svg{max-height:380px;border:1px solid #cfdad2;border-radius:8px;--plan-bg:#f7faf7;--plan-grid:#d5e2d9;--ink:#13241b;--muted:#56675d;--copper:#b8621a;--intake:#1c63c9;--exhaust:#c8331f;--bad:#bf2e2e}
+.doc img.sk{max-height:420px;border:1px solid #cfdad2;border-radius:8px;display:block;margin:6px 0}
+
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);padding:22px;width:min(640px,92vw)}
+dialog::backdrop{background:rgba(5,15,10,.55)}
+dialog textarea{min-height:160px;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;gap:16px;padding-top:12px}
+  nav.steps{position:static;overflow-x:auto;margin:0 -20px;padding:0 20px}
+  .trace{display:flex;gap:6px;padding:0;width:max-content}
+  .trace::before{left:0;right:0;top:auto;bottom:auto;top:24px;height:3px;width:auto}
+  .step{flex-direction:column;gap:4px;padding:8px 6px;width:96px;text-align:center;font-size:13px}
+  .step small{display:none}
+  .overall{display:none}
+  .hero{grid-template-columns:1fr}
+  .planner{grid-template-columns:1fr}
+  .g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .brand-s{display:none}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .span2{grid-column:auto}
+  .panel,.hero{padding:16px}
+  .save{display:none}
+  .doc{padding:18px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+@media print{
+  @page{margin:.55in}
+  :root{padding:0}
+  body{background:#fff}
+  body *{visibility:hidden}
+  #printDoc,#printDoc *{visibility:visible}
+  #printDoc{position:absolute;left:0;top:0;width:100%;border:0;padding:0}
+  .doc h3{break-after:avoid}
+  .doc table,.doc img,.doc svg{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <svg class="chip-logo" viewBox="0 0 40 40" aria-hidden="true">
+        <rect x="9" y="9" width="22" height="22" rx="3" fill="var(--pcb)"/>
+        <rect x="14" y="14" width="12" height="12" rx="1.5" fill="none" stroke="var(--surface)" stroke-width="1.6"/>
+        <g stroke="var(--copper)" stroke-width="2.2" stroke-linecap="round">
+          <path d="M14 9V4M20 9V4M26 9V4M14 31v5M20 31v5M26 31v5M9 14H4M9 20H4M9 26H4M31 14h5M31 20h5M31 26h5"/>
+        </g>
+      </svg>
+      <div style="min-width:0">
+        <div class="brand-t">Anything But a Case</div>
+        <div class="brand-s">Part 1 · Research &amp; planning workbook</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span id="saveState" class="save ok">Saved on this device</span>
+      <button class="btn ghost sm" id="backupBtn" type="button">Backup / restore</button>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="steps" aria-label="Workbook steps">
+    <div class="trace" id="trace"></div>
+    <div class="overall"><b id="overallPct">0%</b>of Part 1 complete<div class="bar"><i id="overallBar"></i></div></div>
+  </nav>
+
+  <main>
+    <!-- START -->
+    <section class="page" id="start">
+      <div class="hero">
+        <div>
+          <h1>Build a PC.<br>House it in anything but a case.</h1>
+          <p>Before you cut, glue or drill anything, you need a plan. Work through each step on the left: research the parts, choose a safe material, design the layout, then write it up and present it.</p>
+          <p>Need ideas? Look around the room. We already have a jack-o'-lantern and a kid's toy running as working PCs.</p>
+        </div>
+        <svg class="hero-art" viewBox="0 0 320 220" aria-hidden="true">
+          <rect x="6" y="6" width="308" height="208" rx="18" fill="var(--pcb-soft)"/>
+          <g fill="none" stroke="var(--pcb)" stroke-width="3" stroke-linecap="round" opacity=".55">
+            <path d="M20 60h60l20 20h40"/><path d="M20 160h40l30-30h50"/><path d="M300 50h-50l-20 30h-30"/><path d="M300 170h-70l-20-20h-20"/>
+          </g>
+          <g fill="var(--copper)"><circle cx="20" cy="60" r="6"/><circle cx="20" cy="160" r="6"/><circle cx="300" cy="50" r="6"/><circle cx="300" cy="170" r="6"/></g>
+          <path d="M160 44c-40 0-66 30-66 66s26 70 66 70 66-34 66-70-26-66-66-66z" fill="var(--copper)" opacity=".9"/>
+          <path d="M156 44c0-12 4-20 12-24" stroke="var(--pcb)" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <rect x="128" y="86" width="64" height="52" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="138" y="96" width="22" height="22" rx="2" fill="var(--pcb)"/>
+          <g fill="var(--muted)"><rect x="166" y="96" width="4" height="34"/><rect x="174" y="96" width="4" height="34"/></g>
+          <rect x="138" y="124" width="22" height="6" rx="1" fill="var(--exhaust)"/>
+          <g stroke="var(--intake)" stroke-width="4" stroke-linecap="round" fill="none"><path d="M64 112h22"/><path d="M80 104l8 8-8 8"/></g>
+          <g stroke="var(--exhaust)" stroke-width="4" stroke-linecap="round" fill="none"><path d="M234 112h22"/><path d="M250 104l8 8-8 8"/></g>
+        </svg>
+      </div>
+
+      <div class="panel">
+        <h2>Your team</h2>
+        <p class="lead">This information goes on the top of everything you print or submit.</p>
+        <div class="grid g2">
+          <label class="f">Team or project name<input type="text" data-bind="team.teamName" placeholder="e.g., The Pumpkin Rig"></label>
+          <label class="f">Class period<input type="text" data-bind="team.period" placeholder="e.g., 3"></label>
+          <label class="f span2">Team members<input type="text" data-bind="team.names" placeholder="First and last names"></label>
+          <label class="f">Start date<input type="date" data-bind="team.date"></label>
+          <label class="f">PC tower you're researching<input type="text" data-bind="team.tower" placeholder="e.g., Classroom tower #4"></label>
+          <label class="f full">Your case idea in one sentence
+            <span class="sub">We're building our case out of ___ because ___.</span>
+            <textarea rows="2" data-bind="team.concept" placeholder="We're building our case out of an old wooden toolbox because it's sturdy, already has a handle, and the lid can open for upgrades."></textarea>
+          </label>
+        </div>
+      </div>
+
+      <div class="panel flat">
+        <h2>What you'll turn in for Part 1</h2>
+        <div class="deliv">
+          <div><b>Component research</b>Size, mounting, cooling and cable needs for every part.</div>
+          <div><b>Materials &amp; safety</b>What you'll build with and why it's safe.</div>
+          <div><b>Sketch or 3D model</b>Case dimensions, part layout, airflow and access.</div>
+          <div><b>1-page research report</b>Sizes, materials, challenges and solutions.</div>
+          <div><b>5–7 minute presentation</b>Design, materials, challenges, lessons learned.</div>
+          <div><b>Reflection</b>300–500 words on your design and what you learned.</div>
+        </div>
+        <div class="hint"><b>Your work saves automatically</b> in this browser on this device. If you switch computers, open <b>Backup / restore</b> at the top, copy your backup code, and paste it on the new computer.</div>
+        <button class="btn" data-go="components" type="button">Start component research</button>
+      </div>
+    </section>
+
+    <!-- COMPONENTS -->
+    <section class="page" id="components">
+      <div class="page-h">
+        <h1>Component research</h1>
+        <p>Open up the classroom tower and measure each part with a ruler or calipers, then check the manufacturer's spec sheet. A part is marked done once it has its size, how it mounts, how it stays cool, and what cables it needs.</p>
+      </div>
+      <div class="panel flat">
+        <h2>Quick converter</h2>
+        <p class="lead">Spec sheets usually list millimeters. Keep all your measurements in inches so the layout planner works.</p>
+        <div class="conv">
+          <label class="f">Millimeters<input type="number" id="mmIn" step="any" placeholder="150"></label>
+          <span class="eq">=</span>
+          <label class="f">Inches<input type="number" id="inIn" step="any" placeholder="5.91"></label>
+        </div>
+      </div>
+      <div id="compList"></div>
+      <button class="btn ghost" id="addComp" type="button">+ Add another part</button>
+    </section>
+
+    <!-- MATERIALS -->
+    <section class="page" id="materials">
+      <div class="page-h">
+        <h1>Case materials</h1>
+        <p>Pick what your case will be made from. It can't be a store-bought computer case. It must be safe around electricity and heat, and strong enough to hold everything.</p>
+      </div>
+      <div class="panel">
+        <h2>What are you considering?</h2>
+        <p class="lead">Select every material you might use, including ones for brackets, panels or trim.</p>
+        <div class="mats" id="matCards"></div>
+        <div class="warnbox" id="matWarn"></div>
+      </div>
+      <div class="panel">
+        <h2>Your choice</h2>
+        <div class="grid g2">
+          <label class="f">Main material<input type="text" data-bind="materials.primary" placeholder="e.g., ½-inch plywood"></label>
+          <label class="f">Supporting materials and fasteners<input type="text" data-bind="materials.secondary" placeholder="e.g., brass standoffs, wood screws, zip ties"></label>
+          <label class="f full">Why is it a good fit for a PC case?
+            <textarea data-bind="materials.why" placeholder="Think about strength, weight, how easy it is to cut, how it handles heat, and how it looks."></textarea>
+          </label>
+          <label class="f">Tools you'll need<input type="text" data-bind="materials.tools" placeholder="e.g., jigsaw, drill, hole saw, sandpaper"></label>
+          <label class="f">Where you'll get it<input type="text" data-bind="materials.sourcing" placeholder="e.g., classroom scrap bin, home, hardware store"></label>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Safety check</h2>
+        <p class="lead">Check each statement that is true for your material. Anything left unchecked needs a plan below.</p>
+        <div class="checklist" id="safetyList"></div>
+        <div class="grid g2" style="margin-top:16px">
+          <label class="f">Safety concerns with this material<textarea data-bind="materials.concerns" placeholder="e.g., Cardboard can catch fire and gets weak if it's warm or damp."></textarea></label>
+          <label class="f">How you'll deal with them<textarea data-bind="materials.mitigation" placeholder="e.g., Line the PSU area with aluminum tape and keep 2 inches of open space around its fan."></textarea></label>
+        </div>
+      </div>
+    </section>
+
+    <!-- DESIGN -->
+    <section class="page" id="design">
+      <div class="page-h">
+        <h1>Case design</h1>
+        <p>Set your case size, drag your parts into place, and mark where air comes in and goes out. This is a side view, like looking through a glass side panel, with the front of the case on the left.</p>
+      </div>
+      <div class="panel">
+        <h2>Case dimensions</h2>
+        <p class="lead">Measure the box your design fits inside, even if your case is round or oddly shaped.</p>
+        <div class="grid g3">
+          <label class="f">Length, front to back<div class="unit"><input type="number" step="0.25" min="0" data-bind="design.L" placeholder="18"></div></label>
+          <label class="f">Height<div class="unit"><input type="number" step="0.25" min="0" data-bind="design.H" placeholder="16"></div></label>
+          <label class="f">Width, side to side<div class="unit"><input type="number" step="0.25" min="0" data-bind="design.W" placeholder="8"></div></label>
+        </div>
+        <div class="hint">A typical mid-tower is about 18 in long, 17 in tall and 8 in wide. Smaller is fine if everything fits and can still breathe.</div>
+      </div>
+
+      <div class="panel">
+        <div class="row" style="justify-content:space-between;margin-bottom:12px">
+          <h2>Layout planner</h2>
+          <div class="row">
+            <button class="btn sm" data-air="in" type="button" style="background:var(--intake);border-color:var(--intake)">+ Intake arrow</button>
+            <button class="btn sm" data-air="out" type="button" style="background:var(--exhaust);border-color:var(--exhaust)">+ Exhaust arrow</button>
+          </div>
+        </div>
+        <p class="lead">Drag a part from the list onto the case, or tap Place. Then drag it inside the case to move it. Tap an airflow arrow to turn it. Parts you haven't measured yet use a typical size and show a dashed outline until you enter your real measurements.</p>
+        <div class="planner">
+          <div class="plan-wrap" id="planWrap"></div>
+          <div class="parts" id="planParts"></div>
+        </div>
+        <h3 style="font-size:18px;margin:18px 0 10px">Fit check</h3>
+        <ul class="fit" id="fit"></ul>
+      </div>
+
+      <div class="panel">
+        <h2>Airflow plan</h2>
+        <p class="lead">Describe the path air takes through your case. Cool air should come in low and front, hot air should leave high and back.</p>
+        <label class="f"><textarea data-bind="design.airflowPlan" placeholder="e.g., Two 120 mm intake fans on the front pull air across the motherboard. The rear 120 mm fan and the PSU push hot air out the back. Vent holes above the GPU let heat rise out."></textarea></label>
+      </div>
+
+      <div class="panel">
+        <h2>Access for upgrades and repairs</h2>
+        <p class="lead">How will someone get inside to swap RAM, add a drive or clean out dust?</p>
+        <div class="chips" id="accessChips"></div>
+        <label class="f" style="margin-top:14px">Describe how it opens<textarea rows="2" data-bind="design.accessNotes" placeholder="e.g., The whole top lifts off on magnets. The rear panel is screwed on so the I/O shield and PSU stay solid."></textarea></label>
+      </div>
+
+      <div class="panel">
+        <h2>Detailed sketch or 3D model</h2>
+        <p class="lead">Upload a photo of your labeled sketch, or link to your 3D model (Tinkercad, SketchUp, Onshape). Label the case dimensions, part locations, vents and fans, and openings.</p>
+        <div class="row">
+          <span class="btn ghost file-btn">Upload sketch photo<input type="file" id="sketchIn" accept="image/*"></span>
+          <button class="btn danger sm" id="sketchDel" type="button" hidden>Remove photo</button>
+        </div>
+        <div id="sketchPrev"></div>
+        <div class="grid g2" style="margin-top:14px">
+          <label class="f">3D model link<input type="url" data-bind="design.modelLink" placeholder="https://www.tinkercad.com/things/..."></label>
+          <label class="f">Look and theme<input type="text" data-bind="design.theme" placeholder="e.g., Haunted house with glowing windows as vents"></label>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPORT -->
+    <section class="page" id="report">
+      <div class="page-h">
+        <h1>Research report</h1>
+        <p>Summarize your research in about one page (roughly 300–550 words). Use the buttons to pull in what you've already written, then rewrite it into full sentences.</p>
+      </div>
+      <div class="panel">
+        <h2>Component sizes and requirements</h2>
+        <p class="lead">Which parts take up the most space or need the most care? What sizes drove your design?</p>
+        <label class="f"><textarea rows="6" data-bind="report.components" id="rep-components"></textarea></label>
+        <button class="btn ghost sm" data-insert="components" type="button" style="margin-top:8px">Insert my component notes</button>
+      </div>
+      <div class="panel">
+        <h2>Chosen materials and why they're suitable</h2>
+        <p class="lead">Explain strength, safety (conductivity and heat), and how you'll work with it.</p>
+        <label class="f"><textarea rows="6" data-bind="report.materials" id="rep-materials"></textarea></label>
+        <button class="btn ghost sm" data-insert="materials" type="button" style="margin-top:8px">Insert my material notes</button>
+      </div>
+      <div class="panel">
+        <h2>Potential challenges and your plan</h2>
+        <p class="lead">Name at least three problems you expect, and how you'll handle each. Think heat, weight, mounting the motherboard, cable routing and the power button.</p>
+        <label class="f"><textarea rows="6" data-bind="report.challenges" id="rep-challenges"></textarea></label>
+        <button class="btn ghost sm" data-insert="challenges" type="button" style="margin-top:8px">Insert my fit-check results</button>
+      </div>
+      <div class="panel flat">
+        <div class="wc" data-wc="report.components,report.materials,report.challenges" data-min="300" data-max="550" data-label="words · aim for 300–550 (about one page)"></div>
+      </div>
+    </section>
+
+    <!-- PRESENTATION -->
+    <section class="page" id="present">
+      <div class="page-h">
+        <h1>Presentation plan</h1>
+        <p>Plan a 5–7 minute presentation to the class. Give each part of your talk a time, write your talking points, then rehearse with the timer.</p>
+      </div>
+      <div class="panel">
+        <div class="row" style="justify-content:space-between;margin-bottom:12px">
+          <h2>Run of show</h2>
+          <div>Total <span class="total" id="segTotal">0 min</span></div>
+        </div>
+        <div id="segList"></div>
+        <button class="btn ghost sm" id="addSeg" type="button">+ Add a section</button>
+      </div>
+      <div class="panel">
+        <h2>Rehearsal timer</h2>
+        <p class="lead">The current section is highlighted as you go. Green means you're in the 5–7 minute window.</p>
+        <div class="timer">
+          <div class="clock" id="clock">0:00</div>
+          <div class="row">
+            <button class="btn" id="tStart" type="button">Start</button>
+            <button class="btn ghost" id="tReset" type="button">Reset</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REFLECTION -->
+    <section class="page" id="reflect">
+      <div class="page-h">
+        <h1>Reflection</h1>
+        <p>Write 300–500 words about the project so far. Be specific and use what you actually measured and decided.</p>
+      </div>
+      <div class="panel">
+        <h2>What inspired your design?</h2>
+        <label class="f"><textarea rows="5" data-bind="reflect.inspiration" placeholder="Where did the idea come from? What else did you consider and reject?"></textarea></label>
+      </div>
+      <div class="panel">
+        <h2>How does your case meet the needs of the components?</h2>
+        <label class="f"><textarea rows="5" data-bind="reflect.needs" placeholder="Talk about space, mounting, airflow and cable routing."></textarea></label>
+      </div>
+      <div class="panel">
+        <h2>What did you learn about computer hardware and case design?</h2>
+        <label class="f"><textarea rows="5" data-bind="reflect.learned" placeholder="What surprised you? What would you improve in your design?"></textarea></label>
+      </div>
+      <div class="panel flat">
+        <div class="wc" data-wc="reflect.inspiration,reflect.needs,reflect.learned" data-min="300" data-max="500" data-label="words · aim for 300–500"></div>
+      </div>
+    </section>
+
+    <!-- SUBMIT -->
+    <section class="page" id="submit">
+      <div class="page-h">
+        <h1>Review and submit</h1>
+        <p>Check what's left, then save everything as a PDF or copy it into your class assignment.</p>
+      </div>
+      <div class="panel">
+        <h2>Checklist</h2>
+        <ul class="cl" id="checklist" style="margin-top:12px"></ul>
+        <div class="row" style="margin-top:18px">
+          <button class="btn" id="printBtn" type="button">Print or save as PDF</button>
+          <button class="btn ghost" id="copyBtn" type="button">Copy everything as text</button>
+          <span id="copyMsg" class="pill" hidden></span>
+        </div>
+        <p style="color:var(--muted);font-size:14.5px;margin:10px 0 0">If the print window doesn't open, use Copy everything as text and paste it into a Google Doc.</p>
+      </div>
+      <div class="doc" id="printDoc"></div>
+    </section>
+  </main>
+</div>
+
+<dialog id="backupDlg">
+  <h2 style="font-size:22px">Backup / restore</h2>
+  <p style="color:var(--muted);margin:6px 0 12px">Copy this code and keep it somewhere safe (email it to yourself or paste it in a doc). To continue on another computer, paste the code here and choose Restore.</p>
+  <textarea id="backupText" spellcheck="false"></textarea>
+  <div class="row" style="margin-top:12px;justify-content:space-between">
+    <div class="row">
+      <button class="btn sm" id="bkCopy" type="button">Copy code</button>
+      <button class="btn ghost sm" id="bkRestore" type="button">Restore from pasted code</button>
+    </div>
+    <div class="row">
+      <button class="btn danger sm" id="bkReset" type="button">Start over</button>
+      <button class="btn ghost sm" id="bkClose" type="button">Close</button>
+    </div>
+  </div>
+  <p id="bkMsg" style="font-size:14.5px;margin:10px 0 0"></p>
+</dialog>
+
+<script>
+(function(){
+const KEY='abac-part1-v1';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>{const n=parseFloat(v);return isFinite(n)&&n>0?n:null};
+const words=s=>(s||'').trim().split(/\s+/).filter(Boolean).length;
+
+const SECTIONS=[
+ {id:'start',t:'Start here',s:'Team info'},
+ {id:'components',t:'Component research',s:'Sizes & requirements'},
+ {id:'materials',t:'Case materials',s:'Choice & safety'},
+ {id:'design',t:'Case design',s:'Layout, airflow, sketch'},
+ {id:'report',t:'Research report',s:'1 page'},
+ {id:'present',t:'Presentation plan',s:'5–7 minutes'},
+ {id:'reflect',t:'Reflection',s:'300–500 words'},
+ {id:'submit',t:'Review & submit',s:'Print or copy'}
+];
+
+const PARTS=[
+ {id:'mobo',name:'Motherboard',short:'Motherboard',ref:'<b>Form factor sets everything.</b> ATX ≈ 12 × 9.6 in · Micro-ATX ≈ 9.6 × 9.6 in · Mini-ITX ≈ 6.7 × 6.7 in. Check the label printed on the board and count its screw holes.',ph:['12','9.6','0.5']},
+ {id:'cpu',name:'CPU (processor)',short:'CPU',ref:'<b>Note the socket type</b> (for example LGA1700, AM4 or AM5). The chip is small, but its cooler is what takes up space.',ph:['1.5','1.5','0.2']},
+ {id:'cooler',name:'CPU cooler / heat sink',short:'Cooler',ref:'<b>Measure the height above the board.</b> Stock coolers are about 4 × 4 × 2.5 in tall. Tower coolers can be over 6 in tall.',ph:['4','4','2.5']},
+ {id:'ram',name:'RAM (memory)',short:'RAM',ref:'<b>Each stick is about 5.25 × 1.2 in</b> and stands straight up from the board. Count how many sticks you have.',ph:['5.25','1.2','0.3']},
+ {id:'gpu',name:'Graphics card (GPU)',short:'GPU',ref:'<b>Length varies a lot</b> (about 6–13 in). Note how many slots thick it is and whether it needs extra PCIe power cables. Skip this if your tower uses built-in graphics.',ph:['9.5','4.5','1.5']},
+ {id:'psu',name:'Power supply (PSU)',short:'PSU',ref:'<b>Standard ATX PSU ≈ 5.9 × 3.4 × 5.5 in</b> (150 × 86 × 140 mm). It is heavy and its fan needs open air. It is the hottest box in the case.',ph:['5.9','3.4','5.5']},
+ {id:'hdd',name:'Storage drive(s)',short:'Drive',ref:'<b>3.5" hard drive ≈ 5.8 × 4 × 1 in</b> · 2.5" SSD ≈ 3.9 × 2.75 × 0.28 in · M.2 SSDs screw straight onto the motherboard.',ph:['5.8','4','1']},
+ {id:'fans',name:'Case fans',short:'Fan',ref:'<b>120 mm fan ≈ 4.7 × 4.7 × 1 in</b> · 80 mm ≈ 3.1 × 3.1 × 1 in. Look for the arrows on the fan frame that show airflow direction.',ph:['4.7','4.7','1']},
+ {id:'fp',name:'Front panel (power button, LEDs, USB)',short:'Power btn',ref:'<b>Your case still needs an on switch.</b> Plan a power button wired to the motherboard\'s front-panel header, plus any USB or LED connections.',ph:['1','1','1']}
+];
+const MOUNTS=['Screw holes','Standoffs','I/O shield','Retention bracket','Expansion slot bracket','Drive bay or tray','Fan screws','Clips or latches','Other'];
+const CABLES=['24-pin ATX power','8-pin CPU power','PCIe power','SATA power','SATA data','Molex','Fan header','Front-panel header','USB header','None'];
+const MATERIALS=[
+ {k:'Wood',i:'🪵',pros:'Strong, easy to screw into, doesn\'t conduct electricity.',cons:'Burns, so keep hot parts vented and away from bare wood. Needs a saw and drill.'},
+ {k:'Cardboard',i:'📦',pros:'Free and fast for prototypes.',cons:'Burns easily and sags when warm or damp. Reinforce it and never block vents.'},
+ {k:'Acrylic or plexiglass',i:'🔲',pros:'Clear, rigid, doesn\'t conduct. Shows off your parts.',cons:'Cracks if drilled too fast. Softens around 180°F.'},
+ {k:'LEGO bricks',i:'🧱',pros:'Modular and easy to rebuild. Doesn\'t conduct.',cons:'Plastic can soften near heat. Needs a solid base plate for the weight.'},
+ {k:'Repurposed container',i:'🎃',pros:'Toys, toolboxes, bins, lunchboxes, plastic pumpkins.',cons:'Find out what it\'s made of. You\'ll need to cut vents and openings.'},
+ {k:'Metal (tin, toolbox)',i:'🧰',pros:'Strong, won\'t burn, spreads heat well.',cons:'Conducts electricity. The board must sit on standoffs and never touch metal. Watch for sharp edges.'},
+ {k:'3D-printed parts',i:'🖨️',pros:'Custom brackets, mounts and vent grilles.',cons:'PLA softens around 140°F, so keep it away from hot spots.'},
+ {k:'Other',i:'✨',pros:'Surprise us.',cons:'Research it: Does it conduct? Does it burn? Is it strong enough?'}
+];
+const SAFETY=[
+ 'Doesn\'t conduct electricity, or is insulated anywhere it touches parts',
+ 'Won\'t catch fire easily, or is protected near the PSU, CPU and GPU',
+ 'Strong enough to hold all the parts (about 10–20 lb)',
+ 'Won\'t melt, warp or give off fumes at PC temperatures',
+ 'Can be cut and drilled with tools we have in class',
+ 'Allows vents, fan holes, an I/O opening and cable holes',
+ 'No sharp edges, or edges will be sanded or covered',
+ 'My teacher has approved this material'
+];
+const ACCESS=['Removable side panel','Hinged lid or door','Magnets or tool-free latches','Easy-to-reach power button','Open rear I/O cutout','Cable pass-through holes','Removable drive tray','Washable dust filter','Handles for carrying'];
+const COLORS={mobo:'#2f9e44',cpu:'#868e96',cooler:'#4263eb',ram:'#ae3ec9',gpu:'#e03131',psu:'#e8a400',hdd:'#0c98ad',fans:'#3b8fd9',fp:'#e8590c'};
+const ON_BOARD=new Set(['mobo','cpu','cooler','ram','gpu']);
+
+function defaults(){return{
+ team:{teamName:'',period:'',names:'',date:'',tower:'',concept:''},
+ components:PARTS.map(p=>({id:p.id,name:p.name,custom:false,model:'',qty:'1',l:'',w:'',h:'',mounts:[],mountNotes:'',heat:'',cooling:'',cables:[],cableNotes:''})),
+ materials:{picked:[],primary:'',secondary:'',why:'',tools:'',sourcing:'',safety:[],concerns:'',mitigation:''},
+ design:{L:'',H:'',W:'',layout:{},airflow:[],airflowPlan:'',access:[],accessNotes:'',sketch:'',modelLink:'',theme:''},
+ report:{components:'',materials:'',challenges:''},
+ present:{segments:[
+   {t:'Intro: team and case idea',m:'0.5',n:''},
+   {t:'Design overview: layout and sketch',m:'1.5',n:''},
+   {t:'Material choices and why',m:'1.5',n:''},
+   {t:'Challenges we expect during construction',m:'1.5',n:''},
+   {t:'Lessons learned and design improvements',m:'1',n:''},
+   {t:'Questions from the class',m:'1',n:''}]},
+ reflect:{inspiration:'',needs:'',learned:''}
+}}
+function merge(s){const d=defaults();if(!s||typeof s!=='object')return d;for(const k in d){if(s[k]==null)s[k]=d[k];else if(!Array.isArray(d[k])&&typeof d[k]==='object'){for(const kk in d[k])if(s[k][kk]===undefined)s[k][kk]=d[k][kk];}}if(!Array.isArray(s.components))s.components=d.components;return s}
+function load(){try{const raw=localStorage.getItem(KEY);return raw?merge(JSON.parse(raw)):null}catch(e){return null}}
+let state=load()||defaults();
+
+let saveT;
+function setSave(t,c){const el=$('#saveState');el.textContent=t;el.className='save '+(c||'')}
+function save(){setSave('Saving…');clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(state));setSave('Saved on this device','ok')}catch(e){setSave('Not saved: use Backup','bad')}},350)}
+function getPath(o,p){return p.split('.').reduce((a,k)=>a==null?undefined:a[k],o)}
+function setPath(o,p,v){const ks=p.split('.');let a=o;for(let i=0;i<ks.length-1;i++)a=a[ks[i]];a[ks[ks.length-1]]=v}
+function hydrate(root=document){
+ $$('[data-bind]',root).forEach(el=>{if(document.activeElement===el)return;const v=getPath(state,el.dataset.bind);el.value=v??''});
+ $$('[data-toggle]',root).forEach(el=>{const a=getPath(state,el.dataset.toggle)||[];el.checked=a.includes(el.value)});
+}
+
+/* ---------- Nav ---------- */
+let current='start';
+function renderNav(){
+ $('#trace').innerHTML=SECTIONS.map((s,i)=>`<button class="step" data-go="${s.id}" id="nav-${s.id}" type="button"><span class="pad"><svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="12.5" pathLength="100" stroke-dasharray="0 100"/></svg><span class="pn">${i+1}</span></span><span>${s.t}<small>${s.s}</small></span></button>`).join('');
+}
+function go(id){
+ if(!SECTIONS.some(s=>s.id===id))id='start';
+ current=id;
+ $$('section.page').forEach(s=>s.classList.toggle('active',s.id===id));
+ $$('.step').forEach(b=>{b.classList.toggle('active',b.dataset.go===id);if(b.dataset.go===id)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current')});
+ try{localStorage.setItem(KEY+'-sec',id)}catch(e){}
+ if(id==='design')renderPlanner();
+ if(id==='submit')renderReview();
+ window.scrollTo({top:0});
+ const nb=$('#nav-'+id);if(nb&&window.innerWidth<900)nb.scrollIntoView({inline:'center',block:'nearest'});
+}
+
+/* ---------- Progress ---------- */
+function compState(c){
+ const dims=num(c.l)&&num(c.w)&&num(c.h);
+ const mount=c.mounts.length||c.mountNotes.trim();
+ const cool=c.heat||c.cooling.trim();
+ const cab=c.cables.length||c.cableNotes.trim();
+ const done=dims&&mount&&cool&&cab;
+ const started=c.model||c.l||c.w||c.h||mount||cool||cab;
+ return done?'done':started?'mid':'todo';
+}
+function presentTotal(){return state.present.segments.reduce((a,s)=>a+(parseFloat(s.m)||0),0)}
+function pcts(){
+ const t=state.team,m=state.materials,d=state.design;
+ const p={};
+ p.start=[t.names,t.concept,t.period].filter(x=>x&&x.trim()).length/3;
+ const cs=state.components;p.components=cs.length?cs.filter(c=>compState(c)==='done').length/cs.length:0;
+ p.materials=((m.primary.trim()?1:0)+(m.why.trim()?1:0)+(m.safety.length/SAFETY.length)+((m.concerns.trim()||m.mitigation.trim())?1:0))/4;
+ const placed=Object.values(d.layout).filter(l=>l.placed).length;
+ const nin=d.airflow.filter(a=>a.type==='in').length,nout=d.airflow.filter(a=>a.type==='out').length;
+ p.design=(((num(d.L)&&num(d.H)&&num(d.W))?1:0)+Math.min(placed/3,1)+(nin?.5:0)+(nout?.5:0)+(d.airflowPlan.trim()?1:0)+((d.access.length||d.accessNotes.trim())?1:0)+((d.sketch||d.modelLink.trim())?1:0))/6;
+ p.report=Math.min(words(state.report.components+' '+state.report.materials+' '+state.report.challenges)/300,1);
+ const tot=presentTotal(),segs=state.present.segments;
+ p.present=(tot>=5&&tot<=7?.5:0)+(segs.length?segs.filter(s=>s.n.trim()).length/segs.length*.5:0);
+ p.reflect=Math.min(words(state.reflect.inspiration+' '+state.reflect.needs+' '+state.reflect.learned)/300,1);
+ const keys=['start','components','materials','design','report','present','reflect'];
+ p.submit=keys.reduce((a,k)=>a+p[k],0)/keys.length;
+ return p;
+}
+function updateProgress(){
+ const p=pcts();
+ SECTIONS.forEach((s,i)=>{const b=$('#nav-'+s.id);if(!b)return;const v=Math.round(p[s.id]*100);
+  b.querySelector('circle').setAttribute('stroke-dasharray',`${v} 100`);
+  b.classList.toggle('done',v>=100);b.querySelector('.pn').textContent=v>=100?'✓':(i+1)});
+ const o=Math.round(p.submit*100);$('#overallPct').textContent=o+'%';$('#overallBar').style.width=o+'%';
+}
+function updateCounts(){
+ $$('[data-wc]').forEach(el=>{
+  const n=el.dataset.wc.split(',').reduce((a,p)=>a+words(getPath(state,p)),0);
+  const min=+el.dataset.min,max=+el.dataset.max;
+  el.className='wc'+(n>max?' over':n>=min?' good':'');
+  el.innerHTML=`<b>${n}</b> ${el.dataset.label}<div class="bar"><i style="width:${Math.min(n/max,1)*100}%"></i></div>`;
+ });
+}
+
+/* ---------- Components ---------- */
+function chip(path,val){return `<label class="chip"><input type="checkbox" data-toggle="${path}" value="${esc(val)}"><span>${esc(val)}</span></label>`}
+function renderComps(){
+ $('#compList').innerHTML=state.components.map((c,i)=>{
+  const p=PARTS.find(x=>x.id===c.id);const ph=p?p.ph:['','',''];
+  const col=COLORS[c.id]||'#7048e8';
+  return `<details class="comp" data-i="${i}" ${i===0?'open':''}>
+  <summary><span class="sw" style="background:${col}"></span><span class="cname">${esc(c.name||'New part')}</span><span class="pill" id="cp-${i}"></span></summary>
+  <div class="comp-b">
+   ${p?`<div class="ref">${p.ref}</div>`:`<div class="grid g2"><label class="f">Part name<input type="text" data-bind="components.${i}.name" placeholder="e.g., Wi-Fi card, LED strip"></label><div style="display:flex;align-items:end;justify-content:flex-end"><button class="btn danger sm" data-del-comp="${i}" type="button">Remove this part</button></div></div>`}
+   <div class="grid g4">
+    <label class="f span2">Brand and model<input type="text" data-bind="components.${i}.model" placeholder="From the label or spec sheet"></label>
+    <label class="f">Quantity<input type="number" min="0" step="1" data-bind="components.${i}.qty"></label>
+    <label class="f">Heat level<select data-bind="components.${i}.heat"><option value="">Choose…</option><option>Low</option><option>Medium</option><option>High</option></select></label>
+   </div>
+   <div class="grid g3">
+    <label class="f">Length<div class="unit"><input type="number" step="any" min="0" data-bind="components.${i}.l" placeholder="${ph[0]}"></div></label>
+    <label class="f">Width<div class="unit"><input type="number" step="any" min="0" data-bind="components.${i}.w" placeholder="${ph[1]}"></div></label>
+    <label class="f">Height / thickness<div class="unit"><input type="number" step="any" min="0" data-bind="components.${i}.h" placeholder="${ph[2]}"></div></label>
+   </div>
+   <div><p class="fieldset-t">Mounting points</p><div class="chips">${MOUNTS.map(m=>chip(`components.${i}.mounts`,m)).join('')}</div>
+    <input type="text" style="margin-top:8px" data-bind="components.${i}.mountNotes" placeholder="Details: how many screws, screw size, where the holes are…"></div>
+   <label class="f">Cooling needs<textarea rows="2" data-bind="components.${i}.cooling" placeholder="Does it have a fan or heat sink? How much open space does it need around it? Which way does air flow?"></textarea></label>
+   <div><p class="fieldset-t">Cables and connectors</p><div class="chips">${CABLES.map(m=>chip(`components.${i}.cables`,m)).join('')}</div>
+    <input type="text" style="margin-top:8px" data-bind="components.${i}.cableNotes" placeholder="Cable management: where will these cables run? How long are they?"></div>
+  </div></details>`}).join('');
+ hydrate($('#compList'));
+ state.components.forEach((c,i)=>updateCompStatus(i));
+}
+function updateCompStatus(i){const el=$('#cp-'+i);if(!el)return;const s=compState(state.components[i]);el.className='pill'+(s==='done'?' ok':s==='mid'?' mid':'');el.textContent=s==='done'?'Done':s==='mid'?'In progress':'To research'}
+
+/* ---------- Materials ---------- */
+function renderMaterials(){
+ $('#matCards').innerHTML=MATERIALS.map(m=>`<label class="mat"><input type="checkbox" data-toggle="materials.picked" value="${esc(m.k)}"><span class="mc"><b><span aria-hidden="true">${m.i}</span>${esc(m.k)}</b><span>${esc(m.pros)}</span><em>${esc(m.cons)}</em></span></label>`).join('');
+ $('#safetyList').innerHTML=SAFETY.map(s=>`<label class="check"><input type="checkbox" data-toggle="materials.safety" value="${esc(s)}"><span>${esc(s)}</span></label>`).join('');
+ $('#accessChips').innerHTML=ACCESS.map(a=>chip('design.access',a)).join('');
+}
+function matWarn(){
+ const p=state.materials.picked;const w=[];
+ if(p.includes('Metal (tin, toolbox)'))w.push('Metal conducts electricity. Mount the motherboard on standoffs, cover any metal near the board with insulating tape, and file down sharp edges.');
+ if(p.includes('Cardboard'))w.push('Cardboard burns. Keep it away from the PSU exhaust and CPU cooler, and plan plenty of vents.');
+ $('#matWarn').innerHTML=w.map(esc).join('<br>');
+}
+
+/* ---------- Planner ---------- */
+function compDims(c){const l=num(c.l),w=num(c.w);if(l&&w)return{l,w,h:num(c.h),est:false};const p=PARTS.find(x=>x.id===c.id);const ph=p?p.ph:['2','2','1'];return{l:l||parseFloat(ph[0]),w:w||parseFloat(ph[1]),h:num(c.h)||parseFloat(ph[2]),est:true}}
+function placedItems(){const out=[];state.components.forEach(c=>{const lay=state.design.layout[c.id],d=compDims(c);if(lay&&lay.placed&&d){out.push({c,lay,x:lay.x,y:lay.y,a:lay.rot?d.w:d.l,b:lay.rot?d.l:d.w,d})}});return out}
+function shortName(c){const p=PARTS.find(x=>x.id===c.id);return p?p.short:(c.name||'Part')}
+function analyze(){
+ const d=state.design,L=num(d.L),H=num(d.H),W=num(d.W);const res=[],bad=new Set();const items=placedItems();
+ if(!L||!H){res.push({lvl:'todo',msg:'Enter the case length and height to open the planner.'});return{res,bad}}
+ items.forEach(it=>{
+  if(it.x<-0.01||it.y<-0.01||it.x+it.a>L+0.01||it.y+it.b>H+0.01){res.push({lvl:'bad',msg:`${it.c.name} sticks out past the case walls.`});bad.add(it.c.id)}
+  if(W&&it.d.h&&it.d.h>W){res.push({lvl:'bad',msg:`${it.c.name} is ${it.d.h} in thick, but the case is only ${W} in wide.`});bad.add(it.c.id)}
+ });
+ for(let i=0;i<items.length;i++)for(let j=i+1;j<items.length;j++){const A=items[i],B=items[j];
+  if(ON_BOARD.has(A.c.id)&&ON_BOARD.has(B.c.id))continue;
+  if(A.x<B.x+B.a-0.01&&B.x<A.x+A.a-0.01&&A.y<B.y+B.b-0.01&&B.y<A.y+A.b-0.01){res.push({lvl:'warn',msg:`${A.c.name} overlaps ${B.c.name}. Move one, or explain in your notes how they share the space.`});bad.add(A.c.id);bad.add(B.c.id)}}
+ const mobo=state.components.find(c=>c.id==='mobo'),cool=state.components.find(c=>c.id==='cooler');
+ if(mobo&&num(mobo.l)&&num(mobo.w)){const big=Math.max(num(mobo.l),num(mobo.w)),small=Math.min(num(mobo.l),num(mobo.w));
+  if(Math.max(L,H)<big||Math.min(L,H)<small)res.push({lvl:'bad',msg:'The case is smaller than the motherboard in at least one direction.'})}
+ if(W&&mobo&&cool&&num(cool.h)){const stack=(num(mobo.h)||0.1)+num(cool.h)+0.25;
+  res.push(stack>W?{lvl:'bad',msg:`Board + standoffs + CPU cooler is about ${stack.toFixed(2)} in tall, more than your ${W} in case width.`}:{lvl:'ok',msg:`CPU cooler clearance: ${(W-stack).toFixed(2)} in to spare (board + standoffs + cooler ≈ ${stack.toFixed(2)} in).`})}
+ const nin=d.airflow.filter(a=>a.type==='in').length,nout=d.airflow.filter(a=>a.type==='out').length;
+ if(!nin)res.push({lvl:'warn',msg:'No intake arrows yet. Where does cool air come in?'});
+ if(!nout)res.push({lvl:'warn',msg:'No exhaust arrows yet. Where does hot air leave?'});
+ if(nin&&nout)res.push({lvl:'ok',msg:`Airflow marked: ${nin} intake, ${nout} exhaust.`});
+ const est=items.filter(i=>i.d.est).length;
+ if(est)res.push({lvl:'todo',msg:`${est} placed part${est>1?'s are':' is'} using a typical size (dashed outline). Enter your real measurements in Component research for an accurate fit check.`});
+ const unplaced=state.components.filter(c=>compDims(c)&&!(d.layout[c.id]&&d.layout[c.id].placed)).length;
+ if(unplaced)res.push({lvl:'todo',msg:`${unplaced} measured part${unplaced>1?'s are':' is'} not placed yet.`});
+ if(items.length&&!res.some(r=>r.lvl==='bad'||r.lvl==='warn'&&!/arrows/.test(r.msg)))res.unshift({lvl:'ok',msg:'Every placed part fits inside the case without collisions.'});
+ return{res,bad};
+}
+function planSVG(an,interactive){
+ const d=state.design,L=num(d.L),H=num(d.H);if(!L||!H)return'';
+ const pad=1.8,fs=Math.max(0.3,Math.min(L,H)/34);
+ let s=`<svg ${interactive?'id="plan"':''} class="plan-svg" xmlns="http://www.w3.org/2000/svg" viewBox="${-pad} ${-pad} ${L+2*pad} ${H+2*pad}" font-family="Atkinson Hyperlegible, system-ui, sans-serif" role="img" aria-label="Side view layout of the case">`;
+ s+=`<rect x="${-pad}" y="${-pad}" width="${L+2*pad}" height="${H+2*pad}" style="fill:var(--plan-bg)"/>`;
+ for(let x=0;x<=L+1e-6;x+=1)s+=`<line x1="${x}" y1="0" x2="${x}" y2="${H}" style="stroke:var(--plan-grid)" stroke-width="${Math.round(x)%6===0?0.05:0.025}"/>`;
+ for(let y=0;y<=H+1e-6;y+=1)s+=`<line x1="0" y1="${y}" x2="${L}" y2="${y}" style="stroke:var(--plan-grid)" stroke-width="${Math.round(y)%6===0?0.05:0.025}"/>`;
+ s+=`<rect x="0" y="0" width="${L}" height="${H}" rx="0.12" style="fill:none;stroke:var(--copper)" stroke-width="0.1"/>`;
+ s+=`<text x="${L/2}" y="${-0.55}" text-anchor="middle" font-size="${fs}" style="fill:var(--muted)">${L} in long</text>`;
+ s+=`<text transform="translate(${-0.55} ${H/2}) rotate(-90)" text-anchor="middle" font-size="${fs}" style="fill:var(--muted)">${H} in tall</text>`;
+ s+=`<text x="0" y="${H+fs+0.35}" font-size="${fs}" style="fill:var(--muted)">◀ Front</text><text x="${L}" y="${H+fs+0.35}" text-anchor="end" font-size="${fs}" style="fill:var(--muted)">Back ▶</text>`;
+ placedItems().sort((A,B)=>B.a*B.b-A.a*A.b).forEach(it=>{
+  const col=COLORS[it.c.id]||'#7048e8',isBad=an.bad.has(it.c.id),nm=shortName(it.c);
+  const f=Math.max(0.16,Math.min(fs*1.15,it.b*0.32,it.a/(nm.length*0.58)));
+  s+=`<g ${interactive?`data-drag="c" data-id="${esc(it.c.id)}"`:''} transform="translate(${it.x} ${it.y})"><rect width="${it.a}" height="${it.b}" rx="0.08" fill="${col}" fill-opacity="0.24" stroke="${col}" stroke-width="0.06" ${it.d.est?'stroke-dasharray="0.25 0.15"':''}/>${isBad?`<rect width="${it.a}" height="${it.b}" rx="0.08" fill="none" style="stroke:var(--bad)" stroke-width="0.12" stroke-dasharray="0.3 0.18"/>`:''}<text x="${it.a/2}" y="${it.b/2}" text-anchor="middle" dominant-baseline="central" font-size="${f}" font-weight="700" style="fill:var(--ink)">${esc(nm)}</text></g>`;
+ });
+ d.airflow.forEach((a,i)=>{const col=a.type==='in'?'var(--intake)':'var(--exhaust)';
+  s+=`<g ${interactive?`data-drag="a" data-id="${a.id}"`:''} transform="translate(${a.x} ${a.y})"><circle r="0.85" fill="transparent"/><g transform="rotate(${a.angle||0})"><path d="M-0.75 0H0.35" style="stroke:${col}" stroke-width="0.16" stroke-linecap="round"/><path d="M0.2 -0.38L0.8 0L0.2 0.38Z" style="fill:${col}"/></g><text y="-0.6" text-anchor="middle" font-size="${fs*0.85}" font-weight="700" style="fill:${col}">${a.type==='in'?'IN':'OUT'}</text></g>`});
+ return s+'</svg>';
+}
+function renderPlanner(){
+ const an=analyze(),svg=planSVG(an,true);
+ $('#planWrap').innerHTML=svg||'<div class="empty">Enter your case length and height above to open the layout planner.</div>';
+ renderParts();
+ $('#fit').innerHTML=an.res.map(r=>`<li class="${r.lvl}">${esc(r.msg)}</li>`).join('');
+ if(svg)attachDrag();
+}
+function renderParts(){
+ const d=state.design;let h='<div class="parts-h">Parts</div>';
+ state.components.forEach(c=>{const dm=compDims(c),lay=d.layout[c.id],on=lay&&lay.placed;
+  h+=`<div class="part ${on?'on':'grab'}" ${on?'':`data-pdrag="${esc(c.id)}" title="Drag onto the case"`}>${on?'':'<span class="grip" aria-hidden="true">⠿</span>'}<span class="sw" style="background:${COLORS[c.id]||'#7048e8'}"></span><div class="pn">${esc(c.name||'New part')}<small>${dm.est?`typical ${dm.l} × ${dm.w} in`:`${dm.l} × ${dm.w} in`}</small></div>${on?`<button class="icon-btn" data-rot="${esc(c.id)}" title="Rotate 90°" aria-label="Rotate ${esc(c.name)}" type="button">⟳</button>`:''}<button class="btn xs ${on?'ghost':''}" data-place="${esc(c.id)}" type="button">${on?'Remove':'Place'}</button></div>`});
+ h+='<div class="parts-h" style="margin-top:12px">Airflow</div>';
+ if(!d.airflow.length)h+='<div class="part"><small style="color:var(--muted)">Use the buttons above to add arrows.</small></div>';
+ let ni=0,no=0;
+ d.airflow.forEach(a=>{const lbl=a.type==='in'?`Intake ${++ni}`:`Exhaust ${++no}`;
+  h+=`<div class="part on"><span class="sw" style="background:var(${a.type==='in'?'--intake':'--exhaust'})"></span><div class="pn">${lbl}</div><button class="icon-btn" data-arot="${a.id}" title="Turn 45°" aria-label="Turn ${lbl}" type="button">⟳</button><button class="icon-btn" data-adel="${a.id}" title="Delete" aria-label="Delete ${lbl}" type="button">✕</button></div>`});
+ $('#planParts').innerHTML=h;
+}
+let cdrag=null,pdrag=null;
+const snap4=v=>Math.round(v*4)/4;
+function svgPoint(svg,e){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
+function overPlan(e){const svg=$('#plan');if(!svg)return false;const r=svg.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom}
+function attachDrag(){
+ const svg=$('#plan');
+ svg.addEventListener('pointerdown',e=>{const g=e.target.closest('[data-drag]');if(!g)return;
+  const obj=g.dataset.drag==='c'?state.design.layout[g.dataset.id]:state.design.airflow.find(a=>a.id===g.dataset.id);if(!obj)return;
+  const p=svgPoint(svg,e);cdrag={svg,g,kind:g.dataset.drag,obj,dx:p.x-obj.x,dy:p.y-obj.y,sx:p.x,sy:p.y,moved:false};
+  g.style.cursor='grabbing';e.preventDefault()});
+}
+document.addEventListener('pointerdown',e=>{const row=e.target.closest('[data-pdrag]');if(!row||e.target.closest('button'))return;
+ const c=state.components.find(x=>x.id===row.dataset.pdrag);if(!c||!$('#plan'))return;
+ pdrag={id:c.id,sx:e.clientX,sy:e.clientY,ghost:null,name:c.name||'Part',col:COLORS[c.id]||'#7048e8'};e.preventDefault()});
+window.addEventListener('pointermove',e=>{
+ if(cdrag){const p=svgPoint(cdrag.svg,e);if(Math.abs(p.x-cdrag.sx)+Math.abs(p.y-cdrag.sy)>0.2)cdrag.moved=true;if(!cdrag.moved)return;
+  cdrag.obj.x=snap4(p.x-cdrag.dx);cdrag.obj.y=snap4(p.y-cdrag.dy);cdrag.g.setAttribute('transform',`translate(${cdrag.obj.x} ${cdrag.obj.y})`);return}
+ if(pdrag){if(!pdrag.ghost){if(Math.abs(e.clientX-pdrag.sx)+Math.abs(e.clientY-pdrag.sy)<5)return;const g=document.createElement('div');g.className='drag-ghost';g.style.background=pdrag.col;g.textContent=pdrag.name;document.body.appendChild(g);pdrag.ghost=g}
+  pdrag.ghost.style.left=e.clientX+'px';pdrag.ghost.style.top=e.clientY+'px';$('#planWrap').classList.toggle('drop',overPlan(e))}
+});
+function endDrags(e){
+ if(cdrag){const d=cdrag;cdrag=null;if(!d.moved&&d.kind==='a')d.obj.angle=((d.obj.angle||0)+45)%360;save();updateProgress();renderPlanner();return}
+ if(pdrag){const p=pdrag;pdrag=null;if(p.ghost)p.ghost.remove();$('#planWrap').classList.remove('drop');
+  if(!p.ghost||!e||e.type!=='pointerup'||!overPlan(e))return;
+  const q=svgPoint($('#plan'),e);const c=state.components.find(x=>x.id===p.id);if(!c)return;const dm=compDims(c);
+  const lay=state.design.layout[p.id]||{rot:false};const a=lay.rot?dm.w:dm.l,b=lay.rot?dm.l:dm.w;
+  state.design.layout[p.id]=Object.assign(lay,{placed:true,x:snap4(q.x-a/2),y:snap4(q.y-b/2)});save();updateProgress();renderPlanner()}
+}
+window.addEventListener('pointerup',endDrags);window.addEventListener('pointercancel',endDrags);
+function renderSketch(){
+ const s=state.design.sketch;
+ $('#sketchPrev').innerHTML=s?`<div class="sketch-prev"><img src="${s}" alt="Uploaded case sketch"></div>`:'';
+ $('#sketchDel').hidden=!s;
+}
+
+/* ---------- Presentation ---------- */
+function renderSegs(){
+ $('#segList').innerHTML=state.present.segments.map((s,i)=>`<div class="seg" id="seg-${i}"><div class="seg-head"><span class="seg-n">${i+1}</span><input type="text" data-bind="present.segments.${i}.t" aria-label="Section title"><label class="mins"><input type="number" min="0" step="0.5" data-bind="present.segments.${i}.m" aria-label="Minutes"> min</label><button class="icon-btn" data-delseg="${i}" title="Remove section" aria-label="Remove section" type="button">✕</button></div><textarea rows="2" data-bind="present.segments.${i}.n" placeholder="Talking points, who speaks, and what you'll show."></textarea></div>`).join('');
+ hydrate($('#segList'));updatePresentTotal();
+}
+function updatePresentTotal(){const t=presentTotal(),el=$('#segTotal');el.textContent=(Math.round(t*10)/10)+' min';el.className='total '+(t>=5&&t<=7?'good':'off')}
+let tRun=false,tStart=0,tAcc=0,tInt=null;
+function tick(){
+ const ms=tAcc+(tRun?Date.now()-tStart:0),sec=Math.floor(ms/1000),min=ms/60000;
+ const c=$('#clock');c.textContent=`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`;
+ c.className='clock'+(min>7?' over':min>=5?' zone':'');
+ let acc=0,live=-1;state.present.segments.forEach((s,i)=>{const m=parseFloat(s.m)||0;if(live<0&&min<acc+m&&(tRun||tAcc))live=i;acc+=m});
+ $$('.seg').forEach((el,i)=>el.classList.toggle('live',i===live));
+}
+
+/* ---------- Report helpers ---------- */
+function compLine(c){
+ const dm=[c.l,c.w,c.h].filter(Boolean).join(' × ');
+ const bits=[];
+ if(dm)bits.push(`${dm} in`);
+ if(c.mounts.length||c.mountNotes)bits.push('mounts with '+[c.mounts.join(', '),c.mountNotes].filter(Boolean).join('; '));
+ if(c.heat||c.cooling)bits.push('cooling: '+[c.heat?c.heat+' heat':'',c.cooling].filter(Boolean).join(', '));
+ if(c.cables.length||c.cableNotes)bits.push('cables: '+[c.cables.join(', '),c.cableNotes].filter(Boolean).join('; '));
+ return bits.length?`${c.name}${c.model?` (${c.model})`:''}: ${bits.join('; ')}.`:'';
+}
+function autoText(kind){
+ if(kind==='components')return state.components.map(compLine).filter(Boolean).join('\n');
+ if(kind==='materials'){const m=state.materials;return[
+  m.primary&&`Main material: ${m.primary}.`, m.secondary&&`Supporting materials: ${m.secondary}.`, m.why&&`Why: ${m.why}`,
+  `Safety: meets ${m.safety.length} of ${SAFETY.length} safety checks.`, m.concerns&&`Concerns: ${m.concerns}`, m.mitigation&&`Plan: ${m.mitigation}`].filter(Boolean).join('\n')}
+ if(kind==='challenges'){const an=analyze();return an.res.filter(r=>r.lvl==='bad'||r.lvl==='warn').map(r=>'Challenge: '+r.msg+' Plan: ').join('\n')||'Challenge: \nPlan: '}
+ return'';
+}
+
+/* ---------- Review ---------- */
+function checklistItems(){
+ const p=pcts(),s=state;
+ const done=s.components.filter(c=>compState(c)==='done').length;
+ const rw=words(s.report.components+' '+s.report.materials+' '+s.report.challenges),fw=words(s.reflect.inspiration+' '+s.reflect.needs+' '+s.reflect.learned);
+ return[
+  {t:'Team info',v:p.start,d:'Names, period and case idea',go:'start'},
+  {t:'Component research',v:p.components,d:`${done} of ${s.components.length} parts done`,go:'components'},
+  {t:'Materials and safety',v:p.materials,d:`${s.materials.safety.length} of ${SAFETY.length} safety checks`,go:'materials'},
+  {t:'Case design: layout, airflow, access, sketch',v:p.design,d:s.design.sketch||s.design.modelLink?'Sketch or model added':'Sketch or 3D model still needed',go:'design'},
+  {t:'Research report',v:p.report,d:`${rw} words`,go:'report'},
+  {t:'Presentation plan',v:p.present,d:`${Math.round(presentTotal()*10)/10} minutes planned`,go:'present'},
+  {t:'Reflection',v:p.reflect,d:`${fw} words`,go:'reflect'}];
+}
+function renderReview(){
+ $('#checklist').innerHTML=checklistItems().map(i=>`<li class="${i.v>=1?'done':i.v>0?'part':''}"><span class="dot">${i.v>=1?'✓':''}</span><span class="d"><b>${i.t}</b><br><small>${esc(i.d)}</small></span>${i.v<1?`<button class="btn xs ghost" data-go="${i.go}" type="button">Finish</button>`:''}</li>`).join('');
+ $('#printDoc').innerHTML=buildDoc();
+}
+function para(s){return s&&s.trim()?esc(s).replace(/\n/g,'<br>'):'<span class="missing">Not filled in yet</span>'}
+function buildDoc(){
+ const t=state.team,m=state.materials,d=state.design,r=state.report,f=state.reflect;
+ let h=`<div class="doc-k">Anything But a Case: Part 1 Research &amp; Planning</div><h2>${esc(t.teamName||'Untitled team')}</h2><p>${esc(t.names||'')}${t.period?` · Period ${esc(t.period)}`:''}${t.date?` · ${esc(t.date)}`:''}${t.tower?` · ${esc(t.tower)}`:''}</p>${t.concept?`<p><i>${esc(t.concept)}</i></p>`:''}`;
+ h+=`<h3>Component research</h3><div class="tw"><table><thead><tr><th>Part</th><th>Model</th><th>Qty</th><th>Size (in)</th><th>Mounting</th><th>Cooling</th><th>Cables</th></tr></thead><tbody>`;
+ state.components.forEach(c=>{h+=`<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.model)}</td><td>${esc(c.qty)}</td><td>${esc([c.l,c.w,c.h].filter(Boolean).join(' × '))}</td><td>${esc([c.mounts.join(', '),c.mountNotes].filter(Boolean).join('. '))}</td><td>${esc([c.heat,c.cooling].filter(Boolean).join('. '))}</td><td>${esc([c.cables.join(', '),c.cableNotes].filter(Boolean).join('. '))}</td></tr>`});
+ h+=`</tbody></table></div>`;
+ h+=`<h3>Materials and safety</h3><p><b>Considered:</b> ${esc(m.picked.join(', ')||'None selected')}</p><p><b>Main material:</b> ${para(m.primary)}</p><p><b>Supporting materials:</b> ${para(m.secondary)}</p><p><b>Why it fits:</b> ${para(m.why)}</p><p><b>Tools:</b> ${para(m.tools)} &nbsp; <b>Source:</b> ${para(m.sourcing)}</p><h4>Safety checks</h4><p>${SAFETY.map(s=>(m.safety.includes(s)?'✓ ':'✗ ')+esc(s)).join('<br>')}</p><p><b>Concerns:</b> ${para(m.concerns)}</p><p><b>Plan:</b> ${para(m.mitigation)}</p>`;
+ h+=`<h3>Case design</h3><p><b>Dimensions:</b> ${d.L||'?'} in long × ${d.H||'?'} in tall × ${d.W||'?'} in wide${d.theme?` · <b>Theme:</b> ${esc(d.theme)}`:''}</p>`;
+ const an=analyze(),svg=planSVG(an,false);
+ if(svg)h+=`<h4>Layout (side view)</h4>${svg}<p>${an.res.map(x=>(x.lvl==='ok'?'✓ ':x.lvl==='todo'?'… ':'! ')+esc(x.msg)).join('<br>')}</p>`;
+ h+=`<h4>Airflow plan</h4><p>${para(d.airflowPlan)}</p><h4>Access</h4><p>${esc(d.access.join(', '))}${d.access.length&&d.accessNotes?'<br>':''}${d.accessNotes?esc(d.accessNotes):(!d.access.length?'<span class="missing">Not filled in yet</span>':'')}</p>`;
+ h+=`<h4>Sketch / 3D model</h4>${d.sketch?`<img class="sk" src="${d.sketch}" alt="Case sketch">`:''}${d.modelLink?`<p>3D model: ${esc(d.modelLink)}</p>`:''}${!d.sketch&&!d.modelLink?'<p><span class="missing">Not added yet</span></p>':''}`;
+ const rw=words(r.components+' '+r.materials+' '+r.challenges);
+ h+=`<h3>Research report <span style="font-weight:400;font-size:14px;color:#56675d">(${rw} words)</span></h3><h4>Component sizes and requirements</h4><p>${para(r.components)}</p><h4>Chosen materials</h4><p>${para(r.materials)}</p><h4>Potential challenges and solutions</h4><p>${para(r.challenges)}</p>`;
+ h+=`<h3>Presentation plan <span style="font-weight:400;font-size:14px;color:#56675d">(${Math.round(presentTotal()*10)/10} min)</span></h3><div class="tw"><table><thead><tr><th>#</th><th>Section</th><th>Min</th><th>Talking points</th></tr></thead><tbody>${state.present.segments.map((s,i)=>`<tr><td>${i+1}</td><td>${esc(s.t)}</td><td>${esc(s.m)}</td><td>${esc(s.n).replace(/\n/g,'<br>')}</td></tr>`).join('')}</tbody></table></div>`;
+ const fw=words(f.inspiration+' '+f.needs+' '+f.learned);
+ h+=`<h3>Reflection <span style="font-weight:400;font-size:14px;color:#56675d">(${fw} words)</span></h3><h4>What inspired our design</h4><p>${para(f.inspiration)}</p><h4>How our case meets the components' needs</h4><p>${para(f.needs)}</p><h4>What we learned</h4><p>${para(f.learned)}</p>`;
+ return h;
+}
+function buildText(){
+ const t=state.team,m=state.materials,d=state.design,r=state.report,f=state.reflect,L=[];
+ L.push('ANYTHING BUT A CASE: PART 1 RESEARCH & PLANNING',`Team: ${t.teamName}`,`Members: ${t.names}`,`Period: ${t.period}   Date: ${t.date}   Tower: ${t.tower}`,`Case idea: ${t.concept}`,'');
+ L.push('== COMPONENT RESEARCH ==');state.components.forEach(c=>{L.push(`${c.name}${c.model?' ('+c.model+')':''} x${c.qty||1}`,`  Size: ${[c.l,c.w,c.h].filter(Boolean).join(' x ')} in`,`  Mounting: ${[c.mounts.join(', '),c.mountNotes].filter(Boolean).join('. ')}`,`  Cooling: ${[c.heat,c.cooling].filter(Boolean).join('. ')}`,`  Cables: ${[c.cables.join(', '),c.cableNotes].filter(Boolean).join('. ')}`)});
+ L.push('','== MATERIALS & SAFETY ==',`Considered: ${m.picked.join(', ')}`,`Main: ${m.primary}`,`Supporting: ${m.secondary}`,`Why: ${m.why}`,`Tools: ${m.tools}`,`Source: ${m.sourcing}`,'Safety checks:',...SAFETY.map(s=>`  [${m.safety.includes(s)?'x':' '}] ${s}`),`Concerns: ${m.concerns}`,`Plan: ${m.mitigation}`);
+ L.push('','== CASE DESIGN ==',`Dimensions: ${d.L} in long x ${d.H} in tall x ${d.W} in wide`,`Theme: ${d.theme}`,`Parts placed: ${placedItems().map(i=>`${i.c.name} at ${i.x},${i.y} in`).join('; ')}`,`Airflow markers: ${d.airflow.filter(a=>a.type==='in').length} intake, ${d.airflow.filter(a=>a.type==='out').length} exhaust`,`Airflow plan: ${d.airflowPlan}`,`Access: ${d.access.join(', ')}. ${d.accessNotes}`,`3D model: ${d.modelLink}`,`Sketch photo: ${d.sketch?'uploaded (see PDF)':'none'}`);
+ L.push('','== RESEARCH REPORT ==','Component sizes and requirements:',r.components,'','Chosen materials:',r.materials,'','Challenges and solutions:',r.challenges);
+ L.push('','== PRESENTATION PLAN ==',...state.present.segments.map((s,i)=>`${i+1}. ${s.t} (${s.m} min): ${s.n}`),`Total: ${presentTotal()} min`);
+ L.push('','== REFLECTION ==','What inspired our design:',f.inspiration,'','How our case meets the components\' needs:',f.needs,'','What we learned:',f.learned);
+ return L.join('\n');
+}
+async function copyText(txt){
+ try{await navigator.clipboard.writeText(txt);return true}catch(e){
+  const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
+  let ok=false;try{ok=document.execCommand('copy')}catch(_){}ta.remove();return ok}
+}
+
+/* ---------- Events ---------- */
+function onChange(path){
+ save();updateProgress();updateCounts();
+ const m=path.match(/^components\.(\d+)\.(\w+)/);
+ if(m){updateCompStatus(+m[1]);if(m[2]==='name'){const s=$(`details.comp[data-i="${m[1]}"] .cname`);if(s)s.textContent=state.components[+m[1]].name||'New part'}}
+ if(/^design\.(L|H|W)$/.test(path))renderPlanner();
+ if(path.startsWith('present.'))updatePresentTotal();
+ if(path==='materials.picked')matWarn();
+}
+document.addEventListener('input',e=>{const el=e.target;if(el.dataset&&el.dataset.bind){setPath(state,el.dataset.bind,el.value);onChange(el.dataset.bind)}});
+document.addEventListener('change',e=>{const el=e.target;if(el.dataset&&el.dataset.toggle){const a=getPath(state,el.dataset.toggle);const i=a.indexOf(el.value);if(el.checked&&i<0)a.push(el.value);if(!el.checked&&i>=0)a.splice(i,1);onChange(el.dataset.toggle)}});
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;const ds=b.dataset;const d=state.design;
+ if(ds.go){go(ds.go);return}
+ if(ds.delComp!=null){const i=+ds.delComp,c=state.components[i];if(confirm(`Remove "${c.name||'this part'}"?`)){delete d.layout[c.id];state.components.splice(i,1);renderComps();save();updateProgress()}return}
+ if(ds.place){const id=ds.place;const lay=d.layout[id];if(lay&&lay.placed)lay.placed=false;else{const n=Object.values(d.layout).filter(l=>l.placed).length;d.layout[id]=Object.assign({x:0.25+(n%4)*0.5,y:0.25+(n%4)*0.5,rot:false},lay||{},{placed:true})}save();updateProgress();renderPlanner();return}
+ if(ds.rot){const l=d.layout[ds.rot];if(l){l.rot=!l.rot;save();renderPlanner()}return}
+ if(ds.air){const L=num(d.L)||12,H=num(d.H)||12;const n=d.airflow.filter(a=>a.type===ds.air).length;
+  d.airflow.push(ds.air==='in'?{id:'a'+Date.now(),type:'in',x:0.9,y:Math.max(1,H*0.7-n*1.8),angle:0}:{id:'a'+Date.now(),type:'out',x:Math.max(1,L-0.9),y:Math.min(H-1,H*0.25+n*1.8),angle:0});
+  save();updateProgress();renderPlanner();return}
+ if(ds.arot){const a=d.airflow.find(x=>x.id===ds.arot);if(a){a.angle=((a.angle||0)+45)%360;save();renderPlanner()}return}
+ if(ds.adel){d.airflow=d.airflow.filter(x=>x.id!==ds.adel);save();updateProgress();renderPlanner();return}
+ if(ds.insert){const ta=$('#rep-'+ds.insert),txt=autoText(ds.insert);if(!txt)return;const key='report.'+ds.insert;const cur=getPath(state,key);setPath(state,key,cur.trim()?cur.trimEnd()+'\n\n'+txt:txt);ta.value=getPath(state,key);onChange(key);ta.focus();return}
+ if(ds.delseg!=null){state.present.segments.splice(+ds.delseg,1);renderSegs();save();updateProgress();return}
+});
+$('#addComp').addEventListener('click',()=>{state.components.push({id:'c'+Date.now(),name:'',custom:true,model:'',qty:'1',l:'',w:'',h:'',mounts:[],mountNotes:'',heat:'',cooling:'',cables:[],cableNotes:''});renderComps();const all=$$('details.comp');const last=all[all.length-1];last.open=true;last.querySelector('input').focus();save();updateProgress()});
+$('#addSeg').addEventListener('click',()=>{state.present.segments.push({t:'New section',m:'0.5',n:''});renderSegs();save();updateProgress()});
+$('#mmIn').addEventListener('input',e=>{const v=parseFloat(e.target.value);$('#inIn').value=isFinite(v)?(v/25.4).toFixed(2):''});
+$('#inIn').addEventListener('input',e=>{const v=parseFloat(e.target.value);$('#mmIn').value=isFinite(v)?(v*25.4).toFixed(1):''});
+$('#sketchIn').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{const k=Math.min(1,1400/Math.max(img.width,img.height));const w=Math.round(img.width*k),h=Math.round(img.height*k);const cv=document.createElement('canvas');cv.width=w;cv.height=h;const cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,w,h);cx.drawImage(img,0,0,w,h);state.design.sketch=cv.toDataURL('image/jpeg',0.8);renderSketch();save();updateProgress()};img.src=rd.result};rd.readAsDataURL(file);e.target.value=''});
+$('#sketchDel').addEventListener('click',()=>{state.design.sketch='';renderSketch();save();updateProgress()});
+$('#tStart').addEventListener('click',()=>{if(tRun){tAcc+=Date.now()-tStart;tRun=false;clearInterval(tInt);$('#tStart').textContent='Resume'}else{tStart=Date.now();tRun=true;tInt=setInterval(tick,250);$('#tStart').textContent='Pause'}tick()});
+$('#tReset').addEventListener('click',()=>{tRun=false;tAcc=0;clearInterval(tInt);$('#tStart').textContent='Start';tick()});
+$('#printBtn').addEventListener('click',()=>{renderReview();try{window.print()}catch(e){}});
+$('#copyBtn').addEventListener('click',async()=>{const ok=await copyText(buildText());const el=$('#copyMsg');el.hidden=false;el.className='pill '+(ok?'ok':'mid');el.textContent=ok?'Copied. Paste it into your doc.':'Copy was blocked. Use Backup / restore instead.'});
+const dlg=$('#backupDlg');
+$('#backupBtn').addEventListener('click',()=>{$('#backupText').value=JSON.stringify(state);$('#bkMsg').textContent='';dlg.showModal()});
+$('#bkClose').addEventListener('click',()=>dlg.close());
+$('#bkCopy').addEventListener('click',async()=>{const ok=await copyText($('#backupText').value);$('#bkMsg').textContent=ok?'Backup code copied.':'Select the code above and copy it with Ctrl+C (or ⌘+C).'});
+$('#bkRestore').addEventListener('click',()=>{try{const s=JSON.parse($('#backupText').value);if(!s||!s.components)throw 0;if(!confirm('Replace the work on this device with the pasted backup?'))return;state=merge(s);save();renderAll();$('#bkMsg').textContent='Restored.';}catch(e){$('#bkMsg').textContent='That code isn\'t a valid backup. Make sure you pasted the whole thing.'}});
+$('#bkReset').addEventListener('click',()=>{if(!confirm('Erase all work on this device and start over? Copy your backup code first if you want to keep it.'))return;state=defaults();save();renderAll();dlg.close();go('start')});
+
+function renderAll(){renderComps();renderMaterials();renderSegs();hydrate();matWarn();renderSketch();updateProgress();updateCounts();if(current==='design')renderPlanner();if(current==='submit')renderReview()}
+renderNav();renderAll();
+let startSec='start';try{startSec=localStorage.getItem(KEY+'-sec')||'start'}catch(e){}
+go(startSec);tick();
+})();
+</script>
+</body>
+</html>
